@@ -22,7 +22,7 @@ pipeline {
         }
 
 
-        stage('Check Credentials') {
+       stage('Docker Login') {
     steps {
         withCredentials([
             usernamePassword(
@@ -31,19 +31,12 @@ pipeline {
                 passwordVariable: 'DOCKER_PASS'
             )
         ]) {
-            bat '''
-            echo Username=%DOCKER_USER%
-            if "%DOCKER_PASS%"=="" (
-                echo PASSWORD IS EMPTY
-                exit /b 1
-            ) else (
-                echo PASSWORD IS PRESENT
-            )
-            '''
+            powershell '''
+$env:DOCKER_PASS | docker login -u $env:DOCKER_USER --password-stdin
+'''
         }
     }
 }
-
 
         stage('Docker Push') {
             steps {
