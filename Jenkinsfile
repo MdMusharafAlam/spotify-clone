@@ -38,7 +38,7 @@ $env:DOCKER_PASS | docker login -u $env:DOCKER_USER --password-stdin
     }
 }
 
-        stage('Docker Push') {
+        stage('Docker image Push') {
             steps {
                 bat "docker push %IMAGE_NAME%"
             }
