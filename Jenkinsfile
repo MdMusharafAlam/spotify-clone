@@ -22,7 +22,7 @@ pipeline {
         }
 
 
-       stage('Docker Login') {
+      stage('Docker Login') {
     steps {
         withCredentials([
             usernamePassword(
@@ -32,6 +32,7 @@ pipeline {
             )
         ]) {
             powershell '''
+Write-Host "Docker User: $env:DOCKER_USER"
 $env:DOCKER_PASS | docker login -u $env:DOCKER_USER --password-stdin
 '''
         }
