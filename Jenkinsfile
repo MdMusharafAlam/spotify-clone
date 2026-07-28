@@ -1,4 +1,5 @@
 pipeline {
+
     agent any
 
     environment {
@@ -7,36 +8,71 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Build Docker Image') {
+
+        stage('Docker Build') {
             steps {
-                bat "docker build -t %IMAGE_NAME% ."
+                bat """
+                docker build -t %IMAGE_NAME% .
+                """
             }
         }
 
+
         stage('Docker Login') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'voterapp_credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
+
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'voterapp_credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+
+                    bat """
+                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                    """
+
                 }
             }
         }
 
-        stage('Push Docker Image') {
+
+        stage('Push Image to Docker Hub') {
             steps {
-                bat "docker push %IMAGE_NAME%"
+                bat """
+                docker push %IMAGE_NAME%
+                """
             }
         }
 
-        stage('Docker Images') {
+
+        stage('Verify Docker Image') {
             steps {
-                bat "docker images"
+                bat """
+                docker images
+                """
             }
         }
+
+    }
+
+
+    post {
+
+        success {
+            echo 'Spotify Clone Docker Image Build and Push Successful!'
+        }
+
+        failure {
+            echo 'Pipeline Failed. Check Jenkins Logs.'
+        }
+
     }
 }
