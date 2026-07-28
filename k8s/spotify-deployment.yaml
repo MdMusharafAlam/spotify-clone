@@ -21,4 +21,4 @@ spec:
       - name: spotify-container
         image: 8787490748/spotify-clone:v1
         ports:
-        - containerPort: 3000
+        - containerPort: 80
