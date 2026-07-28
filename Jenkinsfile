@@ -8,7 +8,7 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
                 checkout scm
             }
@@ -17,9 +17,7 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                bat """
-                docker build -t %IMAGE_NAME% .
-                """
+                bat "docker build -t %IMAGE_NAME% ."
             }
         }
 
@@ -35,29 +33,42 @@ pipeline {
                     )
                 ]) {
 
-                    bat """
+                    bat '''
                     echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
-                    """
+                    '''
 
                 }
             }
         }
 
 
-        stage('Push Image to Docker Hub') {
+        stage('Docker Push') {
             steps {
-                bat """
-                docker push %IMAGE_NAME%
-                """
+                bat "docker push %IMAGE_NAME%"
             }
         }
 
 
-        stage('Verify Docker Image') {
+        stage('Deploy to Kubernetes') {
             steps {
-                bat """
-                docker images
-                """
+
+                bat '''
+                kubectl apply -f k8s/spotify-deployment.yaml
+                kubectl apply -f k8s/spotify-service.yaml
+                '''
+
+            }
+        }
+
+
+        stage('Verify Deployment') {
+            steps {
+
+                bat '''
+                kubectl get pods
+                kubectl get svc
+                '''
+
             }
         }
 
@@ -67,11 +78,11 @@ pipeline {
     post {
 
         success {
-            echo 'Spotify Clone Docker Image Build and Push Successful!'
+            echo "Spotify Clone CI/CD Pipeline Completed Successfully"
         }
 
         failure {
-            echo 'Pipeline Failed. Check Jenkins Logs.'
+            echo "Pipeline Failed"
         }
 
     }
