@@ -1,0 +1,7 @@
+.git
+.gitignore
+.vscode
+k8s
+Jenkinsfile
+README.md
+docker-compose.yml
