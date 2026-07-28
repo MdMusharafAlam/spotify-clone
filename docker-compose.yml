@@ -1,0 +1,10 @@
+services:
+  spotify:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: spotify-clone:v1
+    container_name: spotify-clone
+    ports:
+      - "8095:80"
+    restart: unless-stopped
